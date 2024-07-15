@@ -51,7 +51,8 @@ dependencies = [
     "imagecodecs",
     "yacs",
     "batchgeneratorsv2",
-    "einops"
+    "einops",
+    "lambda-multiprocessing"
 ]
 
 [project.urls]
