@@ -1,6 +1,6 @@
 import multiprocessing
 import queue
-from torch.multiprocessing import Pipe, Process
+from torch.multiprocessing import Pipe, Process, Manager, Event, Queue
 
 from time import sleep
 from typing import Union, List
@@ -103,30 +103,48 @@ def preprocessing_iterator_fromfiles(list_of_lists: List[List[str]],
                                      verbose: bool = False):
     assert len(list_of_lists) > 0
 
-    parent_conn, child_conn = Pipe()
-    process = Process(target=preprocess_fromfiles_save_to_pipe, args=(
-        list_of_lists, 
-        list_of_segs_from_prev_stage_files, 
-        output_filenames_truncated, 
-        plans_manager, 
-        dataset_json, 
-        configuration_manager, 
-        child_conn, 
-        verbose
-    ))
-    process.start()
+    # Adjust number of processes based on input and specified number of processes
+    num_processes = min(len(list_of_lists), num_processes)
+    assert num_processes >= 1
 
-    while process.is_alive() or parent_conn.poll():
-        if parent_conn.poll():
-            item = parent_conn.recv()
-            if isinstance(item, Exception):
-                process.join()
-                raise item
-            if pin_memory:
-                [i.pin_memory() for i in item.values() if isinstance(i, torch.Tensor)]
-            yield item
+    processes = []
+    parent_conns = []
 
-    process.join()
+    for i in range(num_processes):
+        parent_conn, child_conn = Pipe()
+        process = Process(target=preprocess_fromfiles_save_to_pipe, args=(
+            list_of_lists[i::num_processes],
+            list_of_segs_from_prev_stage_files[i::num_processes] if list_of_segs_from_prev_stage_files is not None else None,
+            output_filenames_truncated[i::num_processes] if output_filenames_truncated is not None else None,
+            plans_manager,
+            dataset_json,
+            configuration_manager,
+            child_conn,
+            verbose
+        ))
+        process.start()
+        processes.append(process)
+        parent_conns.append(parent_conn)
+
+    active_conns = list(parent_conns)
+
+    while active_conns:
+        for conn in active_conns:
+            if conn.poll():
+                item = conn.recv()
+                if isinstance(item, Exception):
+                    for process in processes:
+                        process.terminate()
+                    raise item
+                if pin_memory:
+                    [i.pin_memory() for i in item.values() if isinstance(i, torch.Tensor)]
+                yield item
+
+        active_conns = [conn for conn in active_conns if conn.poll() or any(p.is_alive() for p in processes)]
+        sleep(0.01)
+
+    for process in processes:
+        process.join()
     # context = multiprocessing.get_context('spawn')
     # manager = Manager()
     # num_processes = min(len(list_of_lists), num_processes)

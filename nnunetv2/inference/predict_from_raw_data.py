@@ -346,7 +346,7 @@ class nnUNetPredictor(object):
         each element returned by data_iterator must be a dict with 'data', 'ofile' and 'data_properties' keys!
         If 'ofile' is None, the result will be returned instead of written to a file
         """
-        with Pool(num_processes_segmentation_export) as export_pool:
+        with Pool() as export_pool:
             # worker_list = [i for i in export_pool._pool] # this is a list of the actual worker processes, but it uses pool._pool which is not a public attribute
             r = []
             for preprocessed in data_iterator:
