@@ -114,6 +114,7 @@ def preprocessing_iterator_fromfiles(list_of_lists: List[List[str]],
         for item in results:
             if pin_memory:
                 [i.pin_memory() for i in item.values() if isinstance(i, torch.Tensor)]
+            print("item returned")
             yield item
     # context = multiprocessing.get_context('spawn')
     # manager = Manager()

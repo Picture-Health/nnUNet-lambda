@@ -478,9 +478,9 @@ class nnUNetPredictor(object):
         n_threads = torch.get_num_threads()
         torch.set_num_threads(default_num_processes if default_num_processes < n_threads else n_threads)
         prediction = None
-
+        print(f"len of list_of_parameters: {len(self.list_of_parameters)}")
         for params in self.list_of_parameters:
-
+            print(f"params: {params}")
             # messing with state dict names...
             if not isinstance(self.network, OptimizedModule):
                 self.network.load_state_dict(params)
