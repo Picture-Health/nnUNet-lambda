@@ -347,7 +347,7 @@ class nnUNetPredictor(object):
         If 'ofile' is None, the result will be returned instead of written to a file
         """
         with Pool(num_processes_segmentation_export) as export_pool:
-            worker_list = [i for i in export_pool._pool]
+            # worker_list = [i for i in export_pool._pool] # this is a list of the actual worker processes, but it uses pool._pool which is not a public attribute
             r = []
             for preprocessed in data_iterator:
                 data = preprocessed['data']
@@ -368,10 +368,10 @@ class nnUNetPredictor(object):
 
                 # let's not get into a runaway situation where the GPU predicts so fast that the disk has to b swamped with
                 # npy files
-                proceed = not check_workers_alive_and_busy(export_pool, worker_list, r, allowed_num_queued=2)
-                while not proceed:
-                    sleep(0.1)
-                    proceed = not check_workers_alive_and_busy(export_pool, worker_list, r, allowed_num_queued=2)
+                # proceed = not check_workers_alive_and_busy(export_pool, worker_list, r, allowed_num_queued=2)
+                # while not proceed:
+                #     sleep(0.1)
+                #     proceed = not check_workers_alive_and_busy(export_pool, worker_list, r, allowed_num_queued=2)
 
                 prediction = self.predict_logits_from_preprocessed_data(data).cpu()
 
