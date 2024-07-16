@@ -255,6 +255,7 @@ class nnUNetPredictor(object):
                                                                                  seg_from_prev_stage_files,
                                                                                  output_filename_truncated,
                                                                                  num_processes_preprocessing)
+        print("data iterator successful")
 
         return self.predict_from_data_iterator(data_iterator, save_probabilities, num_processes_segmentation_export)
 

@@ -89,6 +89,7 @@ class DefaultPreprocessor(object):
 
         # if we have a segmentation, sample foreground locations for oversampling and add those to properties
         if has_seg:
+            print('sampling foreground locations')
             # reinstantiating LabelManager for each case is not ideal. We could replace the dataset_json argument
             # with a LabelManager Instance in this function because that's all its used for. Dunno what's better.
             # LabelManager is pretty light computation-wise.
@@ -105,7 +106,9 @@ class DefaultPreprocessor(object):
             # print(all_labels, regions)
             properties['class_locations'] = self._sample_foreground_locations(seg, collect_for_this,
                                                                                    verbose=self.verbose)
+            print("properties acquired")
             seg = self.modify_seg_fn(seg, plans_manager, dataset_json, configuration_manager)
+            print("seg modified")
         if np.max(seg) > 127:
             seg = seg.astype(np.int16)
         else:

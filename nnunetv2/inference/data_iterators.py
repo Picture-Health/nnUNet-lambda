@@ -76,6 +76,7 @@ def preprocess_fromfiles_save_to_pipe(list_of_lists: List[List[str]],
                                                                plans_manager,
                                                                configuration_manager,
                                                                dataset_json)
+            print("run case was successful")
             if list_of_segs_from_prev_stage_files is not None and list_of_segs_from_prev_stage_files[idx] is not None:
                 seg_onehot = convert_labelmap_to_one_hot(seg[0], label_manager.foreground_labels, data.dtype)
                 data = np.vstack((data, seg_onehot))
@@ -84,6 +85,7 @@ def preprocess_fromfiles_save_to_pipe(list_of_lists: List[List[str]],
 
             item = {'data': data, 'data_properties': data_properties,
                     'ofile': output_filenames_truncated[idx] if output_filenames_truncated is not None else None}
+            print(f"item created: {item}")
             pipe.send(item)
         pipe.close()
     except Exception as e:
