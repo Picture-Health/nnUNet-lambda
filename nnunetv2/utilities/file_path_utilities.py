@@ -1,4 +1,4 @@
-from multiprocessing import Pool
+from lambda_multiprocessing import Pool
 from typing import Union, Tuple
 import numpy as np
 from batchgenerators.utilities.file_and_folder_operations import *

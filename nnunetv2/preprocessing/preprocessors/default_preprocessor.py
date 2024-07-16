@@ -11,7 +11,7 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-import multiprocessing
+from lambda_multiprocessing import Pool
 import shutil
 from time import sleep
 from typing import Tuple, Union
@@ -229,11 +229,11 @@ class DefaultPreprocessor(object):
 
         # multiprocessing magic.
         r = []
-        with multiprocessing.get_context("spawn").Pool(num_processes) as p:
+        with Pool(num_processes) as p:
             remaining = list(range(len(dataset)))
             # p is pretty nifti. If we kill workers they just respawn but don't do any work.
             # So we need to store the original pool of workers.
-            workers = [j for j in p._pool]
+            # workers = [j for j in p._pool]
 
             for k in dataset.keys():
                 r.append(p.starmap_async(self.run_case_save,
@@ -243,15 +243,15 @@ class DefaultPreprocessor(object):
 
             with tqdm(desc=None, total=len(dataset), disable=self.verbose) as pbar:
                 while len(remaining) > 0:
-                    all_alive = all([j.is_alive() for j in workers])
-                    if not all_alive:
-                        raise RuntimeError('Some background worker is 6 feet under. Yuck. \n'
-                                           'OK jokes aside.\n'
-                                           'One of your background processes is missing. This could be because of '
-                                           'an error (look for an error message) or because it was killed '
-                                           'by your OS due to running out of RAM. If you don\'t see '
-                                           'an error message, out of RAM is likely the problem. In that case '
-                                           'reducing the number of workers might help')
+                    # all_alive = all([j.is_alive() for j in workers])
+                    # if not all_alive:
+                    #     raise RuntimeError('Some background worker is 6 feet under. Yuck. \n'
+                    #                        'OK jokes aside.\n'
+                    #                        'One of your background processes is missing. This could be because of '
+                    #                        'an error (look for an error message) or because it was killed '
+                    #                        'by your OS due to running out of RAM. If you don\'t see '
+                    #                        'an error message, out of RAM is likely the problem. In that case '
+                    #                        'reducing the number of workers might help')
                     done = [i for i in remaining if r[i].ready()]
                     # get done so that errors can be raised
                     _ = [r[i].get() for i in done]

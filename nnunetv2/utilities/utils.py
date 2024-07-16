@@ -21,7 +21,7 @@ import numpy as np
 import re
 
 from nnunetv2.paths import nnUNet_raw
-from multiprocessing import Pool
+from lambda_multiprocessing import Pool
 
 
 def get_identifiers_from_splitted_dataset_folder(folder: str, file_ending: str):

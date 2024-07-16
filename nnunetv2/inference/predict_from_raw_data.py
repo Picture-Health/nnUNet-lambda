@@ -410,8 +410,8 @@ class nnUNetPredictor(object):
                     print(f'\nDone with image of shape {data.shape}:')
             ret = [i.get()[0] for i in r]
 
-        if isinstance(data_iterator, MultiThreadedAugmenter):
-            data_iterator._finish()
+        # if isinstance(data_iterator, MultiThreadedAugmenter):
+        #     data_iterator._finish()
 
         # clear lru cache
         compute_gaussian.cache_clear()
