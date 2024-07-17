@@ -19,6 +19,7 @@ def convert_predicted_logits_to_segmentation_with_correct_shape(predicted_logits
                                                                 properties_dict: dict,
                                                                 return_probabilities: bool = False,
                                                                 num_threads_torch: int = default_num_processes):
+    print("made it to convert_predicted_logits_to_segmentation_with_correct_shape")
     old_threads = torch.get_num_threads()
     torch.set_num_threads(num_threads_torch)
 
@@ -81,7 +82,7 @@ def export_prediction_from_logits(predicted_array_or_file: Union[np.ndarray, tor
     #     elif predicted_array_or_file.endswith('.npz'):
     #         predicted_array_or_file = np.load(predicted_array_or_file)['softmax']
     #     os.remove(tmp)
-
+    print("made it to export_prediction_from_logits")
     if isinstance(dataset_json_dict_or_file, str):
         dataset_json_dict_or_file = load_json(dataset_json_dict_or_file)
 
