@@ -411,7 +411,9 @@ class nnUNetPredictor(object):
                     print(f'done with {os.path.basename(ofile)}')
                 else:
                     print(f'\nDone with image of shape {data.shape}:')
-            ret = [i.get()[0] for i in r]
+            print(len(r))
+            print(f'results: {r}')
+            ret = [i for i in r]
 
         # if isinstance(data_iterator, MultiThreadedAugmenter):
         #     data_iterator._finish()
