@@ -377,10 +377,10 @@ class nnUNetPredictor(object):
                 print(f'prediction shape: {prediction.shape}')
 
                 if ofile is not None:
+                    print('sending off prediction to background worker for resampling and export')
                     # this needs to go into background processes
                     r.append(export_prediction_from_logits(prediction, properties, self.configuration_manager, self.plans_manager,
                                                   self.dataset_json, ofile, save_probabilities))
-                    print('sending off prediction to background worker for resampling and export')
                     # r.append(
                     #     export_pool.starmap_async(
                     #         export_prediction_from_logits,
@@ -411,7 +411,7 @@ class nnUNetPredictor(object):
                     print(f'\nDone with image of shape {data.shape}:')
             print(len(r))
             print(f'results: {r}')
-            ret = [i[0].get() for i in r]
+            ret = [i for i in r]
 
         # if isinstance(data_iterator, MultiThreadedAugmenter):
         #     data_iterator._finish()
