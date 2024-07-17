@@ -1,6 +1,5 @@
 import inspect
 import itertools
-import multiprocessing
 from lambda_multiprocessing import Pool
 import os
 from copy import deepcopy
@@ -347,7 +346,7 @@ class nnUNetPredictor(object):
         each element returned by data_iterator must be a dict with 'data', 'ofile' and 'data_properties' keys!
         If 'ofile' is None, the result will be returned instead of written to a file
         """
-        with Pool() as export_pool:
+        with Pool(num_processes_segmentation_export) as export_pool:
             # worker_list = [i for i in export_pool._pool] # this is a list of the actual worker processes, but it uses pool._pool which is not a public attribute
             r = []
             for preprocessed in data_iterator:
@@ -375,6 +374,7 @@ class nnUNetPredictor(object):
                 #     proceed = not check_workers_alive_and_busy(export_pool, worker_list, r, allowed_num_queued=2)
 
                 prediction = self.predict_logits_from_preprocessed_data(data).cpu()
+                print(f'prediction shape: {prediction.shape}')
 
                 if ofile is not None:
                     # this needs to go into background processes
@@ -384,8 +384,8 @@ class nnUNetPredictor(object):
                     r.append(
                         export_pool.starmap_async(
                             export_prediction_from_logits,
-                            ((prediction, properties, self.configuration_manager, self.plans_manager,
-                              self.dataset_json, ofile, save_probabilities),)
+                            [(prediction, properties, self.configuration_manager, self.plans_manager,
+                              self.dataset_json, ofile, save_probabilities),]
                         )
                     )
                 else:
@@ -411,7 +411,7 @@ class nnUNetPredictor(object):
                     print(f'\nDone with image of shape {data.shape}:')
             print(len(r))
             print(f'results: {r}')
-            ret = [i.get()[0] for i in r]
+            ret = [i[0].get() for i in r]
 
         # if isinstance(data_iterator, MultiThreadedAugmenter):
         #     data_iterator._finish()
