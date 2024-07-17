@@ -52,7 +52,7 @@ dependencies = [
     "yacs",
     "batchgeneratorsv2",
     "einops",
-    "lambda-multiprocessing"
+    "lambda_multiprocessing"
 ]
 
 [project.urls]
