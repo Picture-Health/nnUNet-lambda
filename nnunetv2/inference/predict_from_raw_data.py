@@ -378,16 +378,16 @@ class nnUNetPredictor(object):
 
                 if ofile is not None:
                     # this needs to go into background processes
-                    # export_prediction_from_logits(prediction, properties, self.configuration_manager, self.plans_manager,
-                    #                               self.dataset_json, ofile, save_probabilities)
+                    r.append(export_prediction_from_logits(prediction, properties, self.configuration_manager, self.plans_manager,
+                                                  self.dataset_json, ofile, save_probabilities))
                     print('sending off prediction to background worker for resampling and export')
-                    r.append(
-                        export_pool.starmap_async(
-                            export_prediction_from_logits,
-                            [(prediction, properties, self.configuration_manager, self.plans_manager,
-                              self.dataset_json, ofile, save_probabilities),]
-                        )
-                    )
+                    # r.append(
+                    #     export_pool.starmap_async(
+                    #         export_prediction_from_logits,
+                    #         [(prediction, properties, self.configuration_manager, self.plans_manager,
+                    #           self.dataset_json, ofile, save_probabilities),]
+                    #     )
+                    # )
                 else:
                     # convert_predicted_logits_to_segmentation_with_correct_shape(
                     #             prediction, self.plans_manager,
