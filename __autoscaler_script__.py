@@ -54,7 +54,6 @@ def main():
         help="Output directory in S3.",
     )
 
-
     _args = parser.parse_args()
     image_save_path = "images/"
     curate_input_image(_args.series_uid, image_save_path)
@@ -62,7 +61,9 @@ def main():
     # download_nnunet_model()
     input_image_path = glob.glob(f'{image_save_path}cropped-image-volumes/*nii.gz')[0]
     output_path = os.path.basename(input_image_path).replace('.nii.gz', '')
-    os.makedirs(output_path, exist_ok=True)
+    output_dir = 'outputs/'
+    os.makedirs(output_dir, exist_ok=True)
+    output_path = f"{output_dir}{os.path.basename(input_image_path)}"
     nnUNet_predict(input_image_path, output_path)
 
     upload_output_folder_to_s3(output_path, _args.s3_output_uri)
