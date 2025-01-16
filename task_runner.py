@@ -19,7 +19,7 @@ def run_clearml_tasks(my_series_list):
         "__autoscaler_script__.py",
         "--branch",
         "nnUNet_clearml",
-        # "--requirements", "requirements.txt",
+        "--requirements", "requirements.txt",
         "--queue",
         "LungLesionSegmentator",
     ]

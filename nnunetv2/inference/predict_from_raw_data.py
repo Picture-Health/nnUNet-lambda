@@ -226,6 +226,7 @@ class nnUNetPredictor(object):
             my_init_kwargs = deepcopy(
                 my_init_kwargs)  # let's not unintentionally change anything in-place. Take this as a
             recursive_fix_for_json_export(my_init_kwargs)
+            print(output_folder)
             maybe_mkdir_p(output_folder)
             save_json(my_init_kwargs, join(output_folder, 'predict_from_raw_data_args.json'))
 

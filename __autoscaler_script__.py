@@ -59,7 +59,7 @@ def main():
     image_save_path = "images/"
     curate_input_image(_args.series_uid, image_save_path)
     # pdb.set_trace()
-    download_nnunet_model()
+    # download_nnunet_model()
     input_image_path = glob.glob(f'{image_save_path}cropped-image-volumes/*nii.gz')[0]
     output_path = os.path.basename(input_image_path).replace('.nii.gz', '')
     os.makedirs(output_path, exist_ok=True)
