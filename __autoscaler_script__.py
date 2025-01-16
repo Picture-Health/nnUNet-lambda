@@ -8,7 +8,6 @@ from pathlib import Path
 from query_raven_image import curate_input_image
 from run_nnunet import download_nnunet_model, nnUNet_predict
 import glob
-import pdb
 # initialize s3 client
 s3_client = boto3.client("s3")
 

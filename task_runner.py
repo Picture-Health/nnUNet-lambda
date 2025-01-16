@@ -14,7 +14,7 @@ def run_clearml_tasks(my_series_list):
     base_command = [
         "clearml-task",
         "--project",
-        "Lung Lesion Segmentation - KOO-SCLC-01",
+        "Lung_Lesion_Segmentation_KOO_SCLC_01",
         "--script",
         "__autoscaler_script__.py",
         "--branch",
@@ -54,16 +54,9 @@ if __name__ == "__main__":
             orientation= 'AXIAL'
             
         )
-
-        # # DEBUG
-        # s3_uris = s3_uris[2:3]  # Process only the 100.tiff file
-        # print(s3_uris)
-        # breaK
-
         # ---------debug locally
         # import sys
         # from __autoscaler_script__ import main  # Replace 'script' with the name of your Python file (without .py)
-
         # # Override sys.argv to simulate command-line arguments
         # sys.argv = [
         #     "__autoscaler_script__.py",  # This mimics the script name
@@ -74,4 +67,4 @@ if __name__ == "__main__":
         # main()
 
         # Run ClearML tasks for each series
-        run_clearml_tasks(my_series_list)
+        run_clearml_tasks(my_series_list[:1])
