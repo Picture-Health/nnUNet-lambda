@@ -66,7 +66,7 @@ def main():
     output_path = f"{output_dir}{os.path.basename(input_image_path)}"
     nnUNet_predict(input_image_path, output_path)
 
-    upload_output_folder_to_s3(output_path, _args.s3_output_uri)
+    upload_output_folder_to_s3(output_dir, _args.s3_output_uri)
 
 if __name__ == "__main__":
     sys.exit(main())
