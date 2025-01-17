@@ -6,7 +6,8 @@ import boto3
 from pathlib import Path
 
 from query_raven_image import curate_input_image
-from run_nnunet import download_nnunet_model, nnUNet_predict
+from run_nnunet import nnUNet_predict
+from lesion_splitter import split_lesions
 import glob
 # initialize s3 client
 s3_client = boto3.client("s3")
@@ -86,7 +87,26 @@ def main():
     output_path = f"{output_dir}{os.path.basename(input_image_path)}"
     nnUNet_predict(input_image_path, output_path)
 
-    # upload_output_folder_to_s3(output_dir, _args.s3_output_uri)
+    # ---------------------------------------------------------------
+    # ---------------------------------------------------------------
+
+    print(f"Starting lesion splitting")
+    lesion_split_dir = 'splitted_lesions/'
+    # Step 2: Define output directory for split lesions
+    os.makedirs(lesion_split_dir, exist_ok=True)
+
+    # Step 3: Run the lesion splitting function
+    try:
+        split_lesions(
+            label_filepath=output_path,
+            output_dir=lesion_split_dir,
+        )
+        print("Lesion splitting completed successfully.")
+        upload_output_folder_to_s3(lesion_split_dir, f"{_args.s3_output_uri}cropped-splitlabel-volumes/")
+    except Exception as e:
+        print(f"Error during lesion splitting: {str(e)}")
+
+    #
     upload_output_file_to_s3(
         input_image_path, f"{_args.s3_output_uri}cropped-image-volumes/{os.path.basename(input_image_path)}"
     )
