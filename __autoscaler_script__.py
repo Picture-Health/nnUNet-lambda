@@ -40,6 +40,26 @@ def upload_output_folder_to_s3(output_folder, s3_uri):
             s3_client.upload_file(local_path, bucket, s3_key)
             print(f"Uploaded {file_name} successfully.")
 
+
+def upload_output_file_to_s3(output_path, s3_uri):
+    """
+    Uploads the specified output file to the given S3 URI.
+
+    Args:
+        output_path (str): The local output file to upload.
+        s3_uri (str): The S3 URI to upload the file to, e.g., 's3://bucket/path/file'.
+    """
+    # Extract bucket and key from S3 URI
+    s3_parts = s3_uri.replace("s3://", "").split("/", 1)
+    bucket = s3_parts[0]
+    key = s3_parts[1] if len(s3_parts) > 1 else ""
+
+    # Upload file to S3
+    print(f"Uploading {output_path} to {s3_uri}")
+    s3_client.upload_file(output_path, bucket, key)
+    print(f"Uploaded file successfully to {s3_uri}")
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="nnunet Lung Lesion Segmentation AutoScaler Pipeline"
@@ -66,7 +86,15 @@ def main():
     output_path = f"{output_dir}{os.path.basename(input_image_path)}"
     nnUNet_predict(input_image_path, output_path)
 
-    upload_output_folder_to_s3(output_dir, _args.s3_output_uri)
+    # upload_output_folder_to_s3(output_dir, _args.s3_output_uri)
+    upload_output_file_to_s3(
+        input_image_path, f"{_args.s3_output_uri}cropped-image-volumes/{os.path.basename(input_image_path)}"
+    )
+    upload_output_file_to_s3(output_path, f"{_args.s3_output_uri}cropped-label-volumes/{os.path.basename(output_path)}")
+    upload_output_file_to_s3(
+        input_image_path.replace("cropped-image-volumes", "cropped-lungmask-volumes"),
+        f'{_args.s3_output_uri}cropped-lungmask-volumes/{os.path.basename(input_image_path)}',
+    )
 
 if __name__ == "__main__":
     sys.exit(main())
