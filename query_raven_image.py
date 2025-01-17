@@ -22,5 +22,5 @@ def curate_input_image(series_uid, image_save_path):
   sitk.WriteImage(mask_sitk, nifti_filepath_mask)
   sitk.WriteImage(image_sitk, nifti_filepath_image)
 
-  n_jobs = 1
-  run_lungmask_crop_on_dataset(Path(image_save_path), n_jobs=n_jobs)
+  # n_jobs = 1
+  # run_lungmask_crop_on_dataset(Path(image_save_path), n_jobs=n_jobs)

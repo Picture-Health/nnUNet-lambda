@@ -8,6 +8,7 @@ from pathlib import Path
 from query_raven_image import curate_input_image
 from run_nnunet import nnUNet_predict
 from lesion_splitter import split_lesions
+from segmentation import crop_file_to_lung_and_save, revert_cropped_image
 import glob
 # initialize s3 client
 s3_client = boto3.client("s3")
@@ -78,17 +79,32 @@ def main():
     _args = parser.parse_args()
     image_save_path = "images/"
     curate_input_image(_args.series_uid, image_save_path)
+    queried_image_path = glob.glob(f"{image_save_path}image-volumes/*nii.gz")[0]
+    queried_lungmask_path = queried_image_path.replace("image-volumes", "lungmask-volumes")
+    cropped_image_path = queried_image_path.replace("image-volumes", "cropped-image-volumes")
+    os.makedirs(os.path.dirname(cropped_image_path), exist_ok=True)
+    crop_coords = crop_file_to_lung_and_save(
+        file_to_crop=queried_image_path,
+        lungmask_file=queried_lungmask_path,
+        output_file=cropped_image_path,
+    )
     # pdb.set_trace()
     # download_nnunet_model()
-    input_image_path = glob.glob(f'{image_save_path}cropped-image-volumes/*nii.gz')[0]
-    output_path = os.path.basename(input_image_path).replace('.nii.gz', '')
-    output_dir = 'outputs/'
-    os.makedirs(output_dir, exist_ok=True)
-    output_path = f"{output_dir}{os.path.basename(input_image_path)}"
-    nnUNet_predict(input_image_path, output_path)
+    # input_image_path = glob.glob(f'{image_save_path}cropped-image-volumes/*nii.gz')[0]
+    cropped_output_dir = 'cropped-label-volumes/'
+    os.makedirs(cropped_output_dir, exist_ok=True)
+    cropped_label_path = f"{cropped_output_dir}{os.path.basename(cropped_image_path)}"
+    nnUNet_predict(cropped_image_path, cropped_label_path)
 
-    # ---------------------------------------------------------------
-    # ---------------------------------------------------------------
+    # Step 3: Revert the cropped image to original size
+    uncropped_output_dir = 'label-volumes/'
+    label_path = f"{uncropped_output_dir}{os.path.basename(cropped_label_path)}"
+    revert_cropped_image(
+        file_to_revert=cropped_label_path,
+        crop_coords=tuple(crop_coords),
+        original_image_path=queried_image_path,
+        output_file=label_path,
+    )
 
     print(f"Starting lesion splitting")
     lesion_split_dir = 'splitted_lesions/'
@@ -98,22 +114,26 @@ def main():
     # Step 3: Run the lesion splitting function
     try:
         split_lesions(
-            label_filepath=output_path,
+            label_filepath=label_path,
             output_dir=lesion_split_dir,
         )
         print("Lesion splitting completed successfully.")
-        upload_output_folder_to_s3(lesion_split_dir, f"{_args.s3_output_uri}cropped-splitlabel-volumes/")
+        upload_output_folder_to_s3(lesion_split_dir, f"{_args.s3_output_uri}splitlabel-volumes/")
     except Exception as e:
         print(f"Error during lesion splitting: {str(e)}")
 
     #
     upload_output_file_to_s3(
-        input_image_path, f"{_args.s3_output_uri}cropped-image-volumes/{os.path.basename(input_image_path)}"
+        queried_image_path,
+        f"{_args.s3_output_uri}image-volumes/{os.path.basename(queried_image_path)}",
     )
-    upload_output_file_to_s3(output_path, f"{_args.s3_output_uri}cropped-label-volumes/{os.path.basename(output_path)}")
     upload_output_file_to_s3(
-        input_image_path.replace("cropped-image-volumes", "cropped-lungmask-volumes"),
-        f'{_args.s3_output_uri}cropped-lungmask-volumes/{os.path.basename(input_image_path)}',
+        label_path, 
+        f"{_args.s3_output_uri}label-volumes/{os.path.basename(label_path)}"
+    )
+    upload_output_file_to_s3(
+        queried_lungmask_path,
+        f"{_args.s3_output_uri}lungmask-volumes/{os.path.basename(queried_lungmask_path)}",
     )
 
 if __name__ == "__main__":

@@ -7,15 +7,6 @@ import SimpleITK as sitk
 import numpy as np
 import sys
 
-sys.path.append("..")
-
-# Global constants
-INTENSITY_THRESHOLD = 4
-DILATION_STRUCTURE_VOXELS = (
-    None  # Set to an integer for voxel-based dilation, or None
-)
-DILATION_STRUCTURE_MM = 3.0  # Set to a float for millimeter-based dilation, or None
-SIZE_THRESHOLD = 100  # Minimum lesion size to save (in pixels)
 
 # ---------------------------------------------------------------
 # Helper Functions
@@ -29,6 +20,16 @@ def split_lesions(
         label_filepath (str): The input 3D label file path.
         output_dir (str): Directory to save split lesion images. Default is 'split_lesions_output'.
     """
+    sys.path.append("..")
+
+    # Global constants
+    INTENSITY_THRESHOLD = 4
+    DILATION_STRUCTURE_VOXELS = (
+        None  # Set to an integer for voxel-based dilation, or None
+    )
+    DILATION_STRUCTURE_MM = 3.0  # Set to a float for millimeter-based dilation, or None
+    SIZE_THRESHOLD = 100  # Minimum lesion size to save (in pixels)
+
     # Read the SimpleITK image
     label_img = sitk.ReadImage(label_filepath, imageIO="NiftiImageIO")
     label_img = sitk.Cast(label_img, sitk.sitkUInt8)
