@@ -1,0 +1,4 @@
+boto3==1.35.13
+nnunetv2
+lambda_multiprocessing
+git+ssh://git@github.com/Picture-Health/raven.git@main
