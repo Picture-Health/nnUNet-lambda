@@ -1,6 +1,7 @@
 import subprocess
 import boto3
 import raven as rv
+import pandas as pd
 
 def run_clearml_tasks(my_series_list):
     """
@@ -14,7 +15,7 @@ def run_clearml_tasks(my_series_list):
     base_command = [
         "clearml-task",
         "--project",
-        "Lung_Lesion_Segmentation_KOO_SCLC_01",
+        "Lung_Lesion_Segmentation_timpoints_IO",
         "--script",
         "__autoscaler_script__.py",
         "--branch",
@@ -25,16 +26,16 @@ def run_clearml_tasks(my_series_list):
     ]
 
     # Loop through each S3 URI and run the command
-    for series in my_series_list:
-        experiment_name = f'{series.dataset_id}__{series.clinical_id}__{series.series_uid}'
+    for index, series in my_series_list.iterrows():
+        experiment_name = f'{series["dataset_id"]}__{series["clinical_id"]}__{series["series_uid"]}'
 
         # Construct the specific command for the current URI
         command = base_command + [
             "--name",
             experiment_name,
             "--args",
-            f"series_uid={series.series_uid}",
-            f"s3_output_uri=s3://picturehealth-data/users/haojia/projects/KOO-SCLC-01/",
+            f"series_uid={series['series_uid']}",
+            f"s3_output_uri=s3://picturehealth-data/users/omid/projects/io_timepoints/",
         ]
 
         # Print the command being run (for debugging)
@@ -47,12 +48,8 @@ if __name__ == "__main__":
     dataset_list = ['ccf_platinum_chemo']
 
     for dataset_id in dataset_list:
-        my_series_list = rv.get_series(
-            dataset_id='ccf_platinum_chemo',
-            modality='CT',
-            body_part_examined='CHEST',
-            orientation= 'AXIAL'
-            
+        my_series_list = pd.read_csv(
+            "s3://picturehealth-data/users/omid/projects/io_timepoints/data_remaining_series_multi_timepoints.csv"
         )
         # ---------debug locally
         # import sys
@@ -67,4 +64,4 @@ if __name__ == "__main__":
         # main()
 
         # Run ClearML tasks for each series
-        run_clearml_tasks(my_series_list[:1])
+        run_clearml_tasks(my_series_list)
