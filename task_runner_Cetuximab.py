@@ -23,6 +23,8 @@ def run_clearml_tasks(my_series_list):
         "--requirements", "requirements.txt",
         "--queue",
         "Segmentator",
+        "--tags",
+        "NSCLC-CETUXIMAB",
     ]
 
     # Loop through each S3 URI and run the command
@@ -63,4 +65,4 @@ if __name__ == "__main__":
         # main()
 
         # Run ClearML tasks for each series
-        run_clearml_tasks(my_series_list)
+        run_clearml_tasks(my_series_list[1:3])
