@@ -1,5 +1,4 @@
 boto3==1.36.19
-nnunetv2
 joblib==1.4.2
 lambda_multiprocessing==1.0
 torch==2.1.2
