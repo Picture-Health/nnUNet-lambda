@@ -6,6 +6,7 @@ import boto3
 from botocore.exceptions import NoCredentialsError
 from boto3.s3.transfer import S3Transfer  # Import S3Transfer explicitly
 from nnunetv2.inference.predict_from_raw_data import nnUNetPredictor
+import subprocess
 
 
 import sys
