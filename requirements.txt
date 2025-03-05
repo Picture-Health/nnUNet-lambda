@@ -3,5 +3,6 @@ nnunetv2
 joblib==1.4.2
 torch==2.1.2
 lambda_multiprocessing
+acvl_utils==0.2.4
 git+ssh://git@github.com/Picture-Health/raven.git@main
 
