@@ -1,6 +1,7 @@
 boto3==1.36.19
 nnunetv2
 joblib==1.4.2
+torch==2.1.2
 lambda_multiprocessing
 git+ssh://git@github.com/Picture-Health/raven.git@main
 
