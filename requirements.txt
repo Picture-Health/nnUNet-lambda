@@ -1,8 +1,28 @@
 boto3==1.36.19
 nnunetv2
 joblib==1.4.2
+lambda_multiprocessing==1.0
 torch==2.1.2
-lambda_multiprocessing
-acvl_utils==0.2.4
+acvl-utils==0.2 # 0.3 may bring breaking changes. Careful!
+dynamic-network-architectures==0.3.1  # 0.3.1 and lower are supported, 0.4 may have breaking changes. Let's be careful here
+tqdm==4.67.1
+dicom2nifti==2.5.1
+scipy==1.15.1
+batchgenerators==0.25.1
+numpy==1.26.4
+scikit-learn==1.6.1
+scikit-image==0.25.1
+SimpleITK==2.4.1
+pandas==2.2.3
+graphviz==0.20.3
+tifffile==2025.1.10
+requests==2.32.3
+nibabel==5.3.2
+matplotlib==3.10.0
+seaborn==0.13.2
+imagecodecs==2024.12.30
+yacs==0.1.8
+batchgeneratorsv2==0.2.3
+einops==0.8.1
 git+ssh://git@github.com/Picture-Health/raven.git@main
 

@@ -22,7 +22,7 @@ def run_clearml_tasks(my_series_list):
         "nnUNet_clearml",
         "--requirements", "requirements.txt",
         "--queue",
-        "LungLesionSegmentator",
+        "Segmentator",
         "--tags",
         "S0819-NSCLC",
     ]
