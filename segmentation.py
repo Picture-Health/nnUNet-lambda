@@ -95,7 +95,7 @@ def download_nnunet_model():
 
         subprocess.run(
             [sys.executable, "-m", "pip", "install",
-             "git+https://github.com/MIC-DKFZ/nnUNet.git@v2.5.1"],
+             "batchgeneratorsv2==0.2.3"],
             capture_output=True,
             text=True,
             check=True
