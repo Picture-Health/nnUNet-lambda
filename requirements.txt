@@ -1,7 +1,7 @@
 boto3==1.36.19
 joblib==1.4.2
 lambda_multiprocessing==1.0
-torch==2.1.2
+torch
 acvl-utils==0.2 # 0.3 may bring breaking changes. Careful!
 dynamic-network-architectures==0.3.1  # 0.3.1 and lower are supported, 0.4 may have breaking changes. Let's be careful here
 tqdm==4.67.1
