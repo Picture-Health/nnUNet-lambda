@@ -78,6 +78,24 @@ def download_nnunet_model():
     s3_client = boto3.client("s3")
     transfer = S3Transfer(s3_client)
 
+    # Install nnUNet
+    try:
+        print("\nInstalling nnUNet...")
+        result = subprocess.run(
+            [sys.executable, "-m", "pip", "install",
+             "git+https://github.com/MIC-DKFZ/nnUNet.git@v2.5.1"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        print(result.stdout)
+        if result.stderr:
+            print("Stderr:", result.stderr)
+    except subprocess.CalledProcessError as e:
+        print(f"Error installing nnUNet: {e}")
+        print(f"Output: {e.output}")
+        return False
+
     # List and download files
     try:
         paginator = s3_client.get_paginator("list_objects_v2")
