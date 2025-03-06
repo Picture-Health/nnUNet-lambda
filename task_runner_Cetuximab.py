@@ -65,4 +65,4 @@ if __name__ == "__main__":
         # main()
 
         # Run ClearML tasks for each series
-        run_clearml_tasks(my_series_list[1:3])
+        run_clearml_tasks(my_series_list)
