@@ -14,12 +14,14 @@ def run_clearml_tasks(my_series_list):
     base_command = [
         "clearml-task",
         "--project",
-        "Lung_Lesion_Segmentation_KOO_SCLC_01",
+        "Lung_Lesion_Segmentation_NW",
+        # "Lung_Lesion_Segmentation_KOO_SCLC_01",
         "--script",
         "__autoscaler_script__.py",
         "--branch",
         "nnUNet_clearml",
-        "--requirements", "requirements.txt",
+        "--requirements",
+        "requirements.txt",
         "--queue",
         "LungLesionSegmentator",
     ]
@@ -34,7 +36,7 @@ def run_clearml_tasks(my_series_list):
             experiment_name,
             "--args",
             f"series_uid={series.series_uid}",
-            f"s3_output_uri=s3://picturehealth-data/users/haojia/projects/KOO-SCLC-01/",
+            f"s3_output_uri=s3://picturehealth-data/users/haojia/projects/NW/",
         ]
 
         # Print the command being run (for debugging)
@@ -44,16 +46,23 @@ def run_clearml_tasks(my_series_list):
         subprocess.run(command, check=True)
 
 if __name__ == "__main__":
-    dataset_list = ['ccf_platinum_chemo']
+    dataset_list = ["KOO-SCLC-01"]
 
     for dataset_id in dataset_list:
         my_series_list = rv.get_series(
-            dataset_id='ccf_platinum_chemo',
-            modality='CT',
-            body_part_examined='CHEST',
-            orientation= 'AXIAL'
-            
+            dataset_id = dataset_id,
+            modality="CT",
+            body_part_examined="CHEST",
+            # body_part_examined=['ABDOMEN', 'UNKNOWN', 'NECK', 'HEAD'],
+            orientation="AXIAL",
         )
+
+        study_id_list = [
+            rv.get_series(series_uid=x)[0].study_uid for x in my_series_list
+        ]
+
+        study_date_list = [rv.get_studies(study_uid=x)[0].study_date for x in study_id_list]
+
         # ---------debug locally
         # import sys
         # from __autoscaler_script__ import main  # Replace 'script' with the name of your Python file (without .py)
@@ -67,4 +76,4 @@ if __name__ == "__main__":
         # main()
 
         # Run ClearML tasks for each series
-        run_clearml_tasks(my_series_list[:1])
+        run_clearml_tasks(my_series_list)
