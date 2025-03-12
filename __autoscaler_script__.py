@@ -99,6 +99,14 @@ def main():
         cropped_image_path,
         f"{_args.s3_output_uri}image-volumes/{os.path.basename(cropped_image_path)}",
     )
+    upload_output_file_to_s3(
+        queried_image_path,
+        f"{_args.s3_output_uri}image-volumes/{os.path.basename(queried_image_path)}",
+    )
+    upload_output_file_to_s3(
+        queried_lungmask_path,
+        f"{_args.s3_output_uri}lungmask-volumes/{os.path.basename(queried_lungmask_path)}",
+    )
     # pdb.set_trace()
     # download_nnunet_model()
     # input_image_path = glob.glob(f'{image_save_path}cropped-image-volumes/*nii.gz')[0]
