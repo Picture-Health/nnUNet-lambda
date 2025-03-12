@@ -90,6 +90,13 @@ def main():
     )
     print(crop_coords)
     print(glob.glob(f"{image_save_path}/**/*nii.gz", recursive=True))
+    import nibabel as nib
+
+    # Load the NIfTI image
+    img = nib.load(cropped_image_path)
+
+    # Get the shape of the image data
+    print(img.shape)
     # pdb.set_trace()
     # download_nnunet_model()
     # input_image_path = glob.glob(f'{image_save_path}cropped-image-volumes/*nii.gz')[0]
