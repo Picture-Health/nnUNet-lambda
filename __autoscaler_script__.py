@@ -88,6 +88,8 @@ def main():
         lungmask_file=queried_lungmask_path,
         output_file=cropped_image_path,
     )
+    print(crop_coords)
+    print(glob.glob(f"{image_save_path}/**/*nii.gz", recursive=True))
     # pdb.set_trace()
     # download_nnunet_model()
     # input_image_path = glob.glob(f'{image_save_path}cropped-image-volumes/*nii.gz')[0]
