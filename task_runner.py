@@ -1,7 +1,7 @@
 import subprocess
 import boto3
 import raven as rv
-
+import pandas as pd
 def run_clearml_tasks(my_series_list):
     """
     Takes a list of S3 URIs and runs the clearml-task command for each URI.
@@ -14,7 +14,9 @@ def run_clearml_tasks(my_series_list):
     base_command = [
         "clearml-task",
         "--project",
-        "Lung_Lesion_Segmentation_NW",
+        "koo-phase-2/qvt-feature-optimization/KOO_SCLC_02_nnUNet",
+        "--tags",
+        "KOO_SCLC_02_nnUNet",
         # "Lung_Lesion_Segmentation_KOO_SCLC_01",
         "--script",
         "__autoscaler_script__.py",
@@ -36,7 +38,7 @@ def run_clearml_tasks(my_series_list):
             experiment_name,
             "--args",
             f"series_uid={series.series_uid}",
-            f"s3_output_uri=s3://picturehealth-data/users/haojia/projects/NW/",
+            f"s3_output_uri=s3://picturehealth-data/projects/KOO-Phase-2/qvt-phenotype-optimization/QVT_feature_extraction_KOO_SCLC_02/",
         ]
 
         # Print the command being run (for debugging)
@@ -46,22 +48,32 @@ def run_clearml_tasks(my_series_list):
         subprocess.run(command, check=True)
 
 if __name__ == "__main__":
-    dataset_list = ["KOO-SCLC-01"]
+    dataset_list = ["KOO-SCLC-02"]
+    # dataset_list = ["NORTHWESTERN_CHAE_LAB"]
+    # dataset_list = ['UH_SCLC']
 
     for dataset_id in dataset_list:
+        # my_series_list = rv.get_series(
+        #     dataset_id = dataset_id,
+        #     modality="CT",
+        #     body_part_examined="CHEST",
+        #     # body_part_examined=['ABDOMEN', 'UNKNOWN', 'NECK', 'HEAD'],
+        #     orientation="AXIAL",
+        # )
+        # my_series_list = rv.get_series(
+        #     series_uid=pd.read_csv(
+        #         "/Users/haojiali/projects/KOO/code/nnunet_venv/nnunet/passed_uh_sclc_series_batch2.csv"
+        #     )["series_uid"].tolist(),
+        #     modality="CT",
+        #     # body_part_examined="CHEST",
+        #     # body_part_examined=['ABDOMEN', 'UNKNOWN', 'NECK', 'HEAD'],
+        #     orientation="AXIAL",
+        # )
         my_series_list = rv.get_series(
-            dataset_id = dataset_id,
+            dataset_id=dataset_id,
             modality="CT",
-            body_part_examined="CHEST",
-            # body_part_examined=['ABDOMEN', 'UNKNOWN', 'NECK', 'HEAD'],
             orientation="AXIAL",
-        )
-
-        study_id_list = [
-            rv.get_series(series_uid=x)[0].study_uid for x in my_series_list
-        ]
-
-        study_date_list = [rv.get_studies(study_uid=x)[0].study_date for x in study_id_list]
+        ).as_dataframe()
 
         # ---------debug locally
         # import sys
@@ -76,4 +88,4 @@ if __name__ == "__main__":
         # main()
 
         # Run ClearML tasks for each series
-        run_clearml_tasks(my_series_list)
+        run_clearml_tasks(my_series_list[:1])

@@ -6,13 +6,34 @@ import os
 import SimpleITK as sitk
 import numpy as np
 import sys
+import scipy
 
 
 # ---------------------------------------------------------------
 # Helper Functions
 # ---------------------------------------------------------------
+def check_in_convex_hull(mask_for_convex: np.array, mask_to_check: np.array) -> bool:
+    """check if mask_to_check is within the convex hull of mask_for_convex.
+
+    Args:
+        mask_for_convex (np.array): lung mask requested from raven
+        mask_to_check (np.array):mask of splitted lesion
+
+    Returns:
+        bool: if the splited lesion is within the convex hull of the lung mask as a criterion for lesion eligibility
+    """
+    convex_points = np.transpose(np.where(mask_for_convex))
+    hull = scipy.spatial.ConvexHull(convex_points)
+    deln = scipy.spatial.Delaunay(convex_points[hull.vertices])
+    mask_points = np.transpose(np.where(mask_to_check))
+    in_convex = len(np.where(deln.find_simplex(mask_points) >= 0)[0]) > 0
+    return in_convex
+
+
 def split_lesions(
-    label_filepath: str, output_dir: str = "split_lesions_output"
+    label_filepath: str,
+    lung_mask_filepath: str,
+    output_dir: str = "split_lesions_output",
 ) -> None:
     """Split lesions in a 3D label volume using dilation and connected components with SimpleITK.
 
@@ -35,6 +56,10 @@ def split_lesions(
     label_img = sitk.Cast(label_img, sitk.sitkUInt8)
     basename = os.path.basename(label_filepath)
     filename = basename.removesuffix(".nii.gz")
+
+    # Read the lung mask
+    lung_mask_img = sitk.ReadImage(lung_mask_filepath, imageIO="NiftiImageIO")
+    lung_mask_img = sitk.Cast(lung_mask_img, sitk.sitkUInt8)
 
     # Threshold lesions in label_img with intensity greater than the global threshold
     label_img = sitk.BinaryThreshold(label_img, 1, INTENSITY_THRESHOLD, 1, 0)
@@ -74,12 +99,19 @@ def split_lesions(
 
     # Iterate over each component and save if it meets the size threshold
     for label in label_shape_stats.GetLabels():
-        component_mask = sitk.BinaryThreshold(
-            relabeled_components, label, label, 1, 0
-        )
+        component_mask = sitk.BinaryThreshold(relabeled_components, label, label, 1, 0)
         component_image = sitk.Mask(label_img, component_mask)
 
         if sitk.GetArrayFromImage(component_image).sum() > 0:
+            in_lung_convex = check_in_convex_hull(
+                sitk.GetArrayFromImage(lung_mask_img).astype("int8"),
+                sitk.GetArrayFromImage(component_image).astype("int8"),
+            )
+            if not in_lung_convex:
+                print(
+                    f"Skipping component {label} in lesion mask as it is outside the lung convex mask."
+                )
+                continue
             final_stats = sitk.LabelShapeStatisticsImageFilter()
             final_stats.Execute(component_image)
             no_pixels = final_stats.GetNumberOfPixels(1)
@@ -90,4 +122,3 @@ def split_lesions(
                 )
                 sitk.WriteImage(component_image, output_filepath)
                 print(f"Saved split lesion: {output_filepath}")
-

@@ -11,7 +11,7 @@ def curate_input_image(series_uid, image_save_path):
   os.makedirs(f"{image_save_path}image-volumes", exist_ok=True)
 
   image = rv.get_images(series_uid = series_uid)[0]
-  mask = rv.get_masks(series_uid = series_uid)[0]
+  mask = rv.get_masks(series_uid = series_uid, mask_type="LUNG_MASK")[0]
 
   mask_sitk = rv.as_sitk(mask)
   image_sitk = rv.as_sitk(image)
