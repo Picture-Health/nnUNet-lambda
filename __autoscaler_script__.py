@@ -116,6 +116,7 @@ def main():
     try:
         split_lesions(
             label_filepath=label_path,
+            lung_mask_filepath=queried_lungmask_path,
             output_dir=lesion_split_dir,
         )
         print("Lesion splitting completed successfully.")
